@@ -1,0 +1,1923 @@
+<p-toast></p-toast>
+
+<div style="display: flex; justify-content: space-between">
+    <button (click)="showRecords()" pButton severity="info" icon="pi pi-search">
+        Ver registros
+    </button>
+    <button
+        (click)="cleanformData()"
+        pButton
+        severity="danger"
+        icon="pi pi-trash"
+    >
+        Limpiar formulario
+    </button>
+</div>
+
+<p-dialog
+    header="Registros Locales"
+    [(visible)]="displayDialogRecords"
+    [modal]="true"
+    [style]="{ width: '80vw' }"
+>
+    <ng-template pTemplate="content">
+        <p-confirmPopup />
+        <p-table [value]="localRecords">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>ID</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-record>
+                <tr
+                    [ngClass]="{
+                        'highlighted-row': currentRecordId === record.id
+                    }"
+                >
+                    <td>{{ record.id }}</td>
+                    <td>
+                        <p-badge
+                            *ngIf="record.status === 'Enviado'"
+                            [value]="'Enviado'"
+                            severity="success"
+                        />
+                        <p-badge
+                            *ngIf="record.status === 'Pendiente'"
+                            [value]="'Pendiente'"
+                            severity="warning"
+                        />
+                        <p-badge
+                            *ngIf="record.status === 'Pendiente a actualizar'"
+                            [value]="'Pendiente a actualizar'"
+                            severity="danger"
+                        />
+                    </td>
+                    <td>
+                        <button
+                            pButton
+                            type="button"
+                            [label]="
+                                record.status === 'Pendiente' ? 'Editar' : 'Ver'
+                            "
+                            (click)="editRecord(record)"
+                        ></button>
+
+                        <button
+                            pButton
+                            type="button"
+                            label="Enviar"
+                            class="p-button-success"
+                            (click)="sendRecordManually(record)"
+                            *ngIf="
+                                record.status === 'Pendiente' ||
+                                record.status === 'Pendiente a actualizar'
+                            "
+                        ></button>
+
+                        <button
+                            pButton
+                            type="button"
+                            label="Eliminar"
+                            class="p-button-danger"
+                            (click)="confirmDelete(record, $event)"
+                            *ngIf="record.status === 'Pendiente'"
+                        ></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-template>
+    <ng-template pTemplate="footer">
+        <button
+            pButton
+            label="Calcular Espacio"
+            (click)="calculateStorageUsage()"
+        ></button>
+        <button
+            pButton
+            label="Eliminar Enviados"
+            class="p-button-danger"
+            (click)="deleteSentRecords()"
+        ></button>
+        <button
+            pButton
+            label="Enviar Todos los Pendientes"
+            class="p-button-success"
+            (click)="syncData()"
+        ></button>
+    </ng-template>
+</p-dialog>
+
+<form action="" [formGroup]="registrationForm" (ngSubmit)="sendRegistro()">
+    <p-panel
+        header="Información de Registro"
+        formGroupName="informacionRegistro"
+    >
+        <div class="col-6">
+            <div class="p-field">
+                <label for="date">Fecha</label>
+                <input
+                    id="informacionRegistro.date"
+                    pInputText
+                    type="date"
+                    formControlName="date"
+                />
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="p-field">
+                <label for="encuestador">Encuestador</label>
+                <input
+                    *ngIf="!username"
+                    id="informacionRegistro.encuestador"
+                    pInputText
+                    formControlName="encuestador"
+                />
+                <label for="encuestador" *ngIf="username">
+                    {{ username }}
+                </label>
+            </div>
+        </div>
+    </p-panel>
+
+    <p-panel header="Información Personal" formGroupName="informacionPersonal">
+        <div class="col-6">
+            <div class="p-field">
+                <label for="entrevistado">Entrevistado</label>
+                <input
+                    id="informacionPersonal.entrevistado"
+                    pInputText
+                    formControlName="entrevistado"
+                    class="p-inputtext-sm p-d-block"
+                />
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="p-field">
+                <label for="dni">Nº Cédula</label>
+                <input
+                    id="informacionPersonal.dni"
+                    pInputText
+                    formControlName="dni"
+                    class="p-inputtext-sm p-d-block"
+                    maxlength="10"
+                    minlength="10"
+                />
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="p-field">
+                <label for="edad">Edad</label>
+                <input
+                    id="informacionPersonal.edad"
+                    pInputText
+                    type="number"
+                    formControlName="edad"
+                    class="p-inputtext-sm p-d-block"
+                />
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="p-field">
+                <label for="nacionalidad">Nacionalidad</label>
+                <p-dropdown
+                    id="informacionPersonal.nacionalidad"
+                    [filter]="true"
+                    [options]="nacionalidadOptions"
+                    formControlName="nacionalidad"
+                    placeholder="Seleccione la nacionalidad"
+                    optionLabel="label"
+                    [showClear]="true"
+                    placeholder="Select a País"
+                >
+                    <ng-template pTemplate="selectedItem">
+                        <div
+                            class="flex align-items-center gap-2"
+                            *ngIf="
+                                registrationForm.value.informacionPersonal
+                                    .nacionalidad
+                            "
+                        >
+                            <img
+                                src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
+                                [class]="
+                                    'flag flag-' +
+                                    registrationForm.value.informacionPersonal.nacionalidad.code.toLowerCase()
+                                "
+                                style="width: 18px"
+                            />
+                            <div>
+                                {{
+                                    registrationForm.value.informacionPersonal
+                                        .nacionalidad.label
+                                }}
+                            </div>
+                        </div>
+                    </ng-template>
+                    <ng-template let-country pTemplate="item">
+                        <div class="flex align-items-center gap-2">
+                            <img
+                                src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
+                                [class]="
+                                    'flag flag-' + country.code.toLowerCase()
+                                "
+                                style="width: 18px"
+                            />
+                            <div>{{ country.label }}</div>
+                        </div>
+                    </ng-template>
+                </p-dropdown>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div class="p-field">
+                <label for="phone">Teléfono</label>
+                <input
+                    id="informacionPersonal.phone"
+                    pInputText
+                    formControlName="phone"
+                    class="p-inputtext-sm p-d-block"
+                    maxlength="10"
+                    minlength="10"
+                />
+            </div>
+        </div>
+    </p-panel>
+
+    <p-panel
+        header="Información de Ubicación"
+        formGroupName="informacionUbicacion"
+    >
+        <div class="col-6">
+            <div class="p-field">
+                <label for="posesionTime">Tiempo de Posesión</label>
+                <div>
+                    <input
+                        id="informacionUbicacion.posesionTime"
+                        pInputText
+                        formControlName="posesionTimeNumber"
+                        type="number"
+                        min="0"
+                        placeholder="Cantidad"
+                        style="width: auto"
+                    />
+                    <p-dropdown
+                        appendTo="body"
+                        formControlName="posesionTimeUnit"
+                        [options]="timeUnits"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Seleccionar"
+                        [style.width]="'auto'"
+                    ></p-dropdown>
+                </div>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="p-field">
+                <label for="sector">Sector</label>
+                <input
+                    id="informacionUbicacion.sector"
+                    pInputText
+                    formControlName="sector"
+                />
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="p-field">
+                <label for="barrio">Barrio</label>
+                <input
+                    id="informacionUbicacion.barrio"
+                    pInputText
+                    formControlName="barrio"
+                />
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="p-field">
+                <label for="manzana">Manzana</label>
+                <input
+                    id="informacionUbicacion.manzana"
+                    pInputText
+                    formControlName="manzana"
+                />
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="p-field">
+                <label for="lotenumero">Lote Número</label>
+                <input
+                    id="informacionUbicacion.lotenumero"
+                    pInputText
+                    formControlName="lotenumero"
+                />
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="p-field">
+                <label for="familyCount"
+                    >¿Cuántas familias viven en el hogar?
+                </label>
+                <input
+                    id="informacionUbicacion.familyCount"
+                    pInputText
+                    type="number"
+                    formControlName="familyCount"
+                    min="0"
+                />
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="p-field">
+                <label for="peopleCount"
+                    >¿Cuántas personas viven en el hogar?</label
+                >
+                <input
+                    id="informacionUbicacion.peopleCount"
+                    pInputText
+                    type="number"
+                    formControlName="peopleCount"
+                    min="0"
+                />
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="p-field">
+                <label for="houseState">Estado actual de la Vivienda</label>
+                <p-dropdown
+                    id="informacionUbicacion.houseState"
+                    [options]="houseStateOptions"
+                    formControlName="houseState"
+                    placeholder="Seleccione el estado"
+                ></p-dropdown>
+            </div>
+        </div>
+    </p-panel>
+
+    <p-panel header="Información de Salud" formGroupName="salud">
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="estadoSalud"
+                    >¿Cómo usted evalúa su estado de salud?</label
+                >
+                <p-dropdown
+                    id="salud.estadoSalud"
+                    [options]="estadoSaludOptions"
+                    formControlName="estadoSalud"
+                    placeholder="Seleccione el estado"
+                ></p-dropdown>
+            </div>
+        </div>
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="causasSalud"
+                    >En su opinión, ¿cuáles son las causas de su problema de
+                    salud?
+                </label>
+                <div>
+                    <p-multiSelect
+                        id="salud.causasSalud"
+                        appendTo="body"
+                        [filter]="false"
+                        selectedItemsLabel="{0} seleccionado"
+                        [maxSelectedLabels]="1"
+                        [options]="causasSaludOptions"
+                        formControlName="causasSalud"
+                        placeholder="Seleccione las causas"
+                        optionLabel="label"
+                        [(ngModel)]="selectedValues.causasSalud"
+                        (onChange)="onMultiSelectChange('causasSalud', true)"
+                    ></p-multiSelect>
+
+                    <!-- Mostrar un botón para abrir el diálogo si se seleccionó 'OTRO' -->
+                    <button
+                        *ngIf="isOtroSelected['causasSalud']"
+                        type="button"
+                        pButton
+                        pTooltip="Especificar Otra Causa"
+                        tooltipPosition="left"
+                        icon="pi pi-pencil"
+                        (click)="openDialogOtherCause('causasSalud')"
+                    ></button>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="conexionHigienico"
+                    >El servicio higiénico que tiene en su vivienda está
+                    conectado a:
+                </label>
+                <p-dropdown
+                    id="salud.conexionHigienico"
+                    [options]="conexionHigienicoOptions"
+                    formControlName="conexionHigienico"
+                    placeholder="Seleccione la conexión"
+                ></p-dropdown>
+            </div>
+        </div>
+    </p-panel>
+
+    <p-panel header="Información de Vivienda" formGroupName="vivienda">
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="estructuraVivienda"
+                    >Estructura de la Vivienda</label
+                >
+                <p-dropdown
+                    id="vivienda.estructuraVivienda"
+                    [options]="estructuraViviendaOptions"
+                    formControlName="estructuraVivienda"
+                    placeholder="Seleccione la estructura"
+                ></p-dropdown>
+            </div>
+        </div>
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="serviciosBasicos"
+                    >¿Cuáles de los siguientes servicios básicos Ud. Dispone?
+                </label>
+                <div>
+                    <p-multiSelect
+                        id="vivienda.serviciosBasicos"
+                        appendTo="body"
+                        [filter]="false"
+                        selectedItemsLabel="{0} seleccionado"
+                        [maxSelectedLabels]="1"
+                        [options]="serviciosBasicosOptions"
+                        formControlName="serviciosBasicos"
+                        [(ngModel)]="selectedValues.serviciosBasicos"
+                        optionLabel="label"
+                        placeholder="Seleccione los servicios"
+                        (onChange)="
+                            onMultiSelectChange('serviciosBasicos', true)
+                        "
+                    ></p-multiSelect>
+
+                    <!-- Mostrar un botón para abrir el diálogo si se seleccionó 'OTRO' -->
+                    <button
+                        *ngIf="isOtroSelected['serviciosBasicos']"
+                        type="button"
+                        pButton
+                        pTooltip="Especificar Otra Causa"
+                        tooltipPosition="left"
+                        icon="pi pi-pencil"
+                        (click)="openDialogOtherCause('serviciosBasicos')"
+                    ></button>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="tenenciaVivienda"
+                    >La tenencia de la vivienda es</label
+                >
+                <p-dropdown
+                    id="vivienda.tenenciaVivienda"
+                    [options]="tenenciaViviendaOptions"
+                    formControlName="tenenciaVivienda"
+                    placeholder="Seleccione la tenencia"
+                ></p-dropdown>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="documentosPropiedad"
+                    >Qué documentos relativos a la propiedad usted tiene:
+                </label>
+                <p-multiSelect
+                    id="vivienda.documentosPropiedad"
+                    appendTo="body"
+                    [filter]="false"
+                    selectedItemsLabel="{0} seleccionado"
+                    [maxSelectedLabels]="1"
+                    [options]="documentosPropiedadOptions"
+                    formControlName="documentosPropiedad"
+                    [(ngModel)]="selectedValues.documentosPropiedad"
+                    placeholder="Seleccione los documentos"
+                    optionLabel="label"
+                    (onChange)="
+                        onMultiSelectChange('documentosPropiedad', true)
+                    "
+                ></p-multiSelect>
+            </div>
+        </div>
+
+        <div class="col-6">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="numPisos">¿Cuántos pisos posee la vivienda? </label>
+                <input
+                    id="vivienda.numPisos"
+                    type="number"
+                    pInputText
+                    formControlName="numPisos"
+                    placeholder="Ingrese el número de pisos"
+                />
+            </div>
+        </div>
+        <div class="col-6">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="numHabitaciones"
+                    >¿Cuántas habitaciones posee la vivienda?
+                </label>
+                <input
+                    id="vivienda.numHabitaciones"
+                    type="number"
+                    pInputText
+                    formControlName="numHabitaciones"
+                    placeholder="Ingrese el número de habitaciones"
+                />
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="tipoAlumbrado"
+                    >Tipo de alumbrado de la Vivienda</label
+                >
+                <p-dropdown
+                    id="vivienda.tipoAlumbrado"
+                    [options]="tipoAlumbradoOptions"
+                    formControlName="tipoAlumbrado"
+                    placeholder="Seleccione el tipo de alumbrado"
+                ></p-dropdown>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="abastecimientoAgua"
+                    >¿Cómo se abastece con el agua?
+                </label>
+                <div>
+                    <p-multiSelect
+                        id="vivienda.abastecimientoAgua"
+                        appendTo="body"
+                        [filter]="false"
+                        selectedItemsLabel="{0} seleccionado"
+                        [maxSelectedLabels]="1"
+                        [options]="abastecimientoAguaOptions"
+                        formControlName="abastecimientoAgua"
+                        [(ngModel)]="selectedValues.abastecimientoAgua"
+                        optionLabel="label"
+                        placeholder="Seleccione el abastecimiento de agua"
+                        (onChange)="
+                            onMultiSelectChange('abastecimientoAgua', true)
+                        "
+                    ></p-multiSelect>
+
+                    <button
+                        *ngIf="isOtroSelected['abastecimientoAgua']"
+                        type="button"
+                        pButton
+                        pTooltip="Especificar Otra Causa"
+                        tooltipPosition="left"
+                        icon="pi pi-pencil"
+                        (click)="openDialogOtherCause('abastecimientoAgua')"
+                    ></button>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="bienesServiciosElectrodomesticos"
+                    >¿Cuáles de los siguientes servicios electrodomésticos Ud.
+                    Dispone?
+                </label>
+
+                <div>
+                    <p-multiSelect
+                        id="vivienda.bienesServiciosElectrodomesticos"
+                        appendTo="body"
+                        [filter]="false"
+                        selectedItemsLabel="{0} seleccionado"
+                        [maxSelectedLabels]="1"
+                        [options]="bienesServiciosElectrodomesticosOptions"
+                        formControlName="bienesServiciosElectrodomesticos"
+                        [(ngModel)]="
+                            selectedValues.bienesServiciosElectrodomesticos
+                        "
+                        placeholder="Seleccione los servicios"
+                        optionLabel="label"
+                        (onChange)="
+                            onMultiSelectChange(
+                                'bienesServiciosElectrodomesticos',
+                                true
+                            )
+                        "
+                    ></p-multiSelect>
+                    <button
+                        *ngIf="
+                            isOtroSelected['bienesServiciosElectrodomesticos']
+                        "
+                        type="button"
+                        pButton
+                        pTooltip="Especificar Otra Causa"
+                        tooltipPosition="left"
+                        icon="pi pi-pencil"
+                        (click)="
+                            openDialogOtherCause(
+                                'bienesServiciosElectrodomesticos'
+                            )
+                        "
+                    ></button>
+                </div>
+            </div>
+        </div>
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="zonaRiesgo"
+                    >¿Su vivienda se encuentra en una zona de riesgo?</label
+                >
+                <p-dropdown
+                    id="vivienda.zonaRiesgo"
+                    [options]="zonaRiesgoOptions"
+                    formControlName="zonaRiesgo"
+                    placeholder="Seleccione la zona de riesgo"
+                ></p-dropdown>
+            </div>
+        </div>
+    </p-panel>
+
+    <p-panel header="Medios de Vida" formGroupName="mediosDeVida">
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="participacionCapacitacion"
+                    >Ha participado en algún tipo de capacitación</label
+                >
+                <p-dropdown
+                    id="mediosDeVida.participacionCapacitacion"
+                    [options]="participacionCapacitacionOptions"
+                    formControlName="participacionCapacitacion"
+                    placeholder="Seleccione una opción"
+                ></p-dropdown>
+            </div>
+        </div>
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="cuantosTrabajos"
+                    >¿Cuántos trabajos desempeña?
+                </label>
+                <input
+                    id="mediosDeVida.cuantosTrabajos"
+                    type="number"
+                    pInputText
+                    formControlName="cuantosTrabajos"
+                    placeholder="Ingrese el número de trabajos"
+                />
+            </div>
+        </div>
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="actividadLaboral"
+                    >En los últimos 12 meses, ha tenido una actividad laboral:
+                </label>
+                <p-dropdown
+                    id="mediosDeVida.actividadLaboral"
+                    [options]="actividadLaboralOptions"
+                    formControlName="actividadLaboral"
+                    placeholder="Seleccione una opción"
+                ></p-dropdown>
+            </div>
+        </div>
+
+        <!-- Tabla de Actividades Económicas -->
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label>Qué actividades económica a desempeñado?</label>
+                <button
+                    pButton
+                    type="button"
+                    icon="pi pi-plus"
+                    label="Añadir Actividad"
+                    (click)="showDialogActividadEconomica()"
+                ></button>
+                <p-table
+                    [style.width]="'100%'"
+                    [value]="actividadEconomicaList"
+                    [paginator]="true"
+                    [rows]="5"
+                    [responsiveLayout]="'scroll'"
+                >
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Nombre de la Actividad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-actividad>
+                        <tr>
+                            <td>{{ actividad.nombre }}</td>
+                            <td>
+                                <button
+                                    pButton
+                                    type="button"
+                                    icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-warning"
+                                    (click)="editActividadEconomica(actividad)"
+                                ></button>
+                                <button
+                                    pButton
+                                    type="button"
+                                    icon="pi pi-trash"
+                                    class="p-button-rounded p-button-danger"
+                                    (click)="
+                                        deleteActividadEconomica(actividad)
+                                    "
+                                ></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="relacionDependencia"
+                    >Trabaja en relación de dependencia?</label
+                >
+                <p-dropdown
+                    id="mediosDeVida.relacionDependencia"
+                    [options]="relacionDependenciaOptions"
+                    formControlName="relacionDependencia"
+                    placeholder="Seleccione una opción"
+                ></p-dropdown>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="cuentaPropia">Trabaja por cuenta propia?</label>
+                <p-dropdown
+                    id="mediosDeVida.cuentaPropia"
+                    [options]="cuentaPropiaOptions"
+                    formControlName="cuentaPropia"
+                    placeholder="Seleccione una opción"
+                ></p-dropdown>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="ingresosMensuales"
+                    >Ingresos mensuales promedios del hogar (sumando los
+                    ingresos de todos los individuos activos)</label
+                >
+                <p-dropdown
+                    id="mediosDeVida.ingresosMensuales"
+                    [options]="ingresosMensualesOptions"
+                    formControlName="ingresosMensuales"
+                    placeholder="Seleccione una opción"
+                ></p-dropdown>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="gastosHogar"
+                    >Repartición de los gastos del hogar:
+                </label>
+                <button
+                    pButton
+                    type="button"
+                    icon="pi pi-plus"
+                    label="Añadir Gasto"
+                    (click)="showDialogGastosHogar()"
+                ></button>
+                <p-table
+                    [style.width]="'100%'"
+                    [value]="gastosHogarList"
+                    [paginator]="true"
+                    [rows]="5"
+                    [responsiveLayout]="'scroll'"
+                >
+                    <ng-template pTemplate="header">
+                        <tr>
+                            <th>Tipo de Gasto</th>
+                            <th>Porcentaje</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </ng-template>
+                    <ng-template pTemplate="body" let-gasto>
+                        <tr>
+                            <td>{{ gasto.tipo.label }}</td>
+                            <td>{{ gasto.porcentaje }}%</td>
+                            <td>
+                                <button
+                                    pButton
+                                    type="button"
+                                    icon="pi pi-pencil"
+                                    class="p-button-rounded p-button-warning"
+                                    (click)="editGastoHogar(gasto)"
+                                ></button>
+                                <button
+                                    pButton
+                                    type="button"
+                                    icon="pi pi-trash"
+                                    class="p-button-rounded p-button-danger"
+                                    (click)="deleteGastoHogar(gasto)"
+                                ></button>
+                            </td>
+                        </tr>
+                    </ng-template>
+                </p-table>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="fuentesIngresos"
+                    >Los ingresos mensuales provienen de:
+                </label>
+                <div>
+                    <p-multiSelect
+                        id="mediosDeVida.fuentesIngresos"
+                        appendTo="body"
+                        [filter]="false"
+                        selectedItemsLabel="{0} seleccionado"
+                        [maxSelectedLabels]="1"
+                        [options]="fuentesIngresosOptions"
+                        formControlName="fuentesIngresos"
+                        [(ngModel)]="selectedValues.fuentesIngresos"
+                        placeholder="Seleccione las fuentes de ingresos"
+                        optionLabel="label"
+                        (onChange)="
+                            onMultiSelectChange('fuentesIngresos', true)
+                        "
+                    ></p-multiSelect>
+                    <button
+                        *ngIf="isOtroSelected['fuentesIngresos']"
+                        type="button"
+                        pButton
+                        pTooltip="Especificar Otra Causa"
+                        tooltipPosition="left"
+                        icon="pi pi-pencil"
+                        (click)="openDialogOtherCause('fuentesIngresos')"
+                    ></button>
+                </div>
+            </div>
+        </div>
+    </p-panel>
+
+    <p-panel
+        header="Redes de Apoyo"
+        styleClass="mb-3"
+        formGroupName="redesDeApoyo"
+    >
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="actividadesBarrio"
+                    >Participa en actividades en el barrio</label
+                >
+
+                <div>
+                    <p-multiSelect
+                        id="redesDeApoyo.actividadesBarrio"
+                        appendTo="body"
+                        [filter]="false"
+                        selectedItemsLabel="{0} seleccionado"
+                        [maxSelectedLabels]="1"
+                        [options]="actividadesBarrioOptions"
+                        formControlName="actividadesBarrio"
+                        [(ngModel)]="selectedValues.actividadesBarrio"
+                        defaultLabel="Seleccione..."
+                        optionLabel="label"
+                        (onChange)="
+                            onMultiSelectChange('actividadesBarrio', true)
+                        "
+                    >
+                    </p-multiSelect>
+                    <button
+                        *ngIf="isOtroSelected['actividadesBarrio']"
+                        type="button"
+                        pButton
+                        pTooltip="Especificar Otra Causa"
+                        tooltipPosition="left"
+                        icon="pi pi-pencil"
+                        (click)="openDialogOtherCause('actividadesBarrio')"
+                    ></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="recibeayudaHumanitaria"
+                    >Recibe algún tipo de ayuda humanitaria?</label
+                >
+
+                <div>
+                    <p-multiSelect
+                        id="redesDeApoyo.recibeayudaHumanitaria"
+                        appendTo="body"
+                        [filter]="false"
+                        selectedItemsLabel="{0} seleccionado"
+                        [maxSelectedLabels]="1"
+                        [options]="recibeAyudaHumanitariaOptions"
+                        formControlName="recibeayudaHumanitaria"
+                        [(ngModel)]="selectedValues.recibeayudaHumanitaria"
+                        defaultLabel="Seleccione..."
+                        optionLabel="label"
+                        (onChange)="
+                            onMultiSelectChange('recibeayudaHumanitaria', true)
+                        "
+                    >
+                    </p-multiSelect>
+                    <button
+                        *ngIf="isOtroSelected['recibeayudaHumanitaria']"
+                        type="button"
+                        pButton
+                        pTooltip="Especificar Otra Causa"
+                        tooltipPosition="left"
+                        icon="pi pi-pencil"
+                        (click)="openDialogOtherCause('recibeayudaHumanitaria')"
+                    ></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="actividadCantonDentro"
+                    >En su tiempo libre, que actividades realizan (dentro del
+                    cantón)</label
+                >
+                <div>
+                    <p-multiSelect
+                        id="redesDeApoyo.actividadCantonDentro"
+                        appendTo="body"
+                        [filter]="false"
+                        selectedItemsLabel="{0} seleccionado"
+                        [maxSelectedLabels]="1"
+                        [options]="actividadCantonDentroOptions"
+                        formControlName="actividadCantonDentro"
+                        [(ngModel)]="selectedValues.actividadCantonDentro"
+                        defaultLabel="Seleccione..."
+                        optionLabel="label"
+                        (onChange)="
+                            onMultiSelectChange('actividadCantonDentro', true)
+                        "
+                    >
+                    </p-multiSelect>
+                    <button
+                        *ngIf="isOtroSelected['actividadCantonDentro']"
+                        type="button"
+                        pButton
+                        pTooltip="Especificar Otra Causa"
+                        tooltipPosition="left"
+                        icon="pi pi-pencil"
+                        (click)="openDialogOtherCause('actividadCantonDentro')"
+                    ></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="actividadCantonFuera"
+                    >En su tiempo libre, que actividades realizan (fuera del
+                    cantón)</label
+                >
+
+                <div>
+                    <p-multiSelect
+                        id="redesDeApoyo.actividadCantonFuera"
+                        appendTo="body"
+                        [filter]="false"
+                        selectedItemsLabel="{0} seleccionado"
+                        [maxSelectedLabels]="1"
+                        [options]="actividadCantonFueraOptions"
+                        formControlName="actividadCantonFuera"
+                        [(ngModel)]="selectedValues.actividadCantonFuera"
+                        defaultLabel="Seleccione..."
+                        optionLabel="label"
+                        (onChange)="
+                            onMultiSelectChange('actividadCantonFuera', true)
+                        "
+                    >
+                    </p-multiSelect>
+                    <button
+                        *ngIf="isOtroSelected['actividadCantonFuera']"
+                        type="button"
+                        pButton
+                        pTooltip="Especificar Otra Causa"
+                        tooltipPosition="left"
+                        icon="pi pi-pencil"
+                        (click)="openDialogOtherCause('actividadCantonFuera')"
+                    ></button>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="mejorasBarrio"
+                    >¿Qué sugiere usted para mejorar su barrio? (Seleccionar 3)
+                </label>
+                <p-multiSelect
+                    id="redesDeApoyo.mejorasBarrio"
+                    appendTo="body"
+                    [filter]="false"
+                    selectedItemsLabel="{0} seleccionado"
+                    [maxSelectedLabels]="1"
+                    selectionLimit="3"
+                    [options]="mejorasBarrioOptions"
+                    formControlName="mejorasBarrio"
+                    defaultLabel="Seleccione..."
+                >
+                </p-multiSelect>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div
+                class="p-field"
+                style="
+                    display: flex;
+                    flex-wrap: wrap;
+                    justify-content: space-between;
+                    align-items: center;
+                    align-content: center;
+                "
+            >
+                <label for="mejoraPlus"
+                    >Propuestas adicionales para la mejora del barrio</label
+                >
+                <input
+                    id="redesDeApoyo.mejoraPlus"
+                    type="text"
+                    pInputText
+                    formControlName="mejoraPlus"
+                />
+            </div>
+        </div>
+    </p-panel>
+    <p-panel header="Familiares" styleClass="mb-3" formGroupName="familiaList">
+        <button
+            pButton
+            type="button"
+            icon="pi pi-plus"
+            label="Agregar Familiar"
+            (click)="showDialogFamiliar()"
+        ></button>
+
+        <p-table
+            [style.width]="'100%'"
+            [value]="familiarList"
+            [scrollable]="true"
+            [paginator]="true"
+            [rows]="5"
+            [responsiveLayout]="'scroll'"
+        >
+            <ng-template pTemplate="header">
+                <tr>
+                    <th>Parentesco</th>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Genero</th>
+                    <th>Edad</th>
+                    <th>Estado Civil</th>
+                    <th>Etnia</th>
+                    <th>Nacionalidad</th>
+                    <th>Cedula</th>
+                    <th>Nivel Educativo</th>
+                    <th>Ocupación</th>
+                    <th>Discapacidad</th>
+                    <th>Enfermedad</th>
+                    <th
+                        style="min-width: 20px"
+                        alignFrozen="right"
+                        pFrozenColumn
+                    >
+                        Acciones
+                    </th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-familiar>
+                <tr>
+                    <td>{{ familiar.familiParentesco }}</td>
+                    <td>{{ familiar.familiaNombre }}</td>
+                    <td>{{ familiar.familiaApellido }}</td>
+                    <td>{{ familiar.familigenero }}</td>
+                    <td>{{ familiar.familiEdad }}</td>
+                    <td>{{ familiar.familiEstadoCivil }}</td>
+                    <td>{{ familiar.familiEtnia }}</td>
+                    <td>
+                        <div
+                            class="flex align-items-center gap-2"
+                            *ngIf="familiar.familiNacionalidad"
+                        >
+                            <img
+                                src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
+                                [class]="
+                                    'flag flag-' +
+                                    familiar.familiNacionalidad.code.toLowerCase()
+                                "
+                                style="width: 18px"
+                            />
+                            <div>
+                                {{ familiar.familiNacionalidad.label }}
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ familiar.familiCeduala }}</td>
+                    <td>{{ familiar.familiNivelEducativo }}</td>
+                    <td>{{ familiar.familiOcupacion }}</td>
+                    <td>{{ familiar.familiDiscacidad }}</td>
+                    <td>{{ familiar.familiEnfermedad }}</td>
+                    <td alignFrozen="right" pFrozenColumn>
+                        <button
+                            pButton
+                            type="button"
+                            icon="pi pi-pencil"
+                            class="p-button-rounded p-button-warning"
+                            (click)="editFamiliar(familiar)"
+                        ></button>
+                        <button
+                            pButton
+                            type="button"
+                            icon="pi pi-trash"
+                            class="p-button-rounded p-button-danger"
+                            (click)="deleteFamiliar(familiar)"
+                        ></button>
+                    </td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </p-panel>
+
+    <footer
+        style="
+            margin-bottom: 1rem;
+            margin-right: 1rem;
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        "
+    >
+        <button
+            pButton
+            type="submit"
+            label="Registrar"
+            [disabled]="!registrationForm.valid"
+        ></button>
+    </footer>
+</form>
+
+<!-- Ícono flotante de advertencia -->
+<button
+    *ngIf="getInvalidFieldsWithMessages().length > 0"
+    pButton
+    icon="pi pi-exclamation-circle"
+    styleClass="warning-button"
+    (click)="showInvalidFieldsDialog()"
+    class="warning-button"
+></button>
+
+<!-- Dialogo que se muestra al hacer clic en el ícono -->
+<p-dialog
+    header="Campos requeridos o inválidos"
+    [(visible)]="invalidFieldsDialogVisible"
+    [closable]="true"
+    [modal]="true"
+    [style]="{ width: '80%' }"
+    [resizable]="false"
+>
+    <!-- Tabla para mostrar los campos faltantes -->
+    <div class="invalid-fields-container">
+        <ul class="invalid-fields-list">
+            <li
+                *ngFor="let field of getInvalidFieldsWithMessages()"
+                class="invalid-field"
+                (click)="scrollToField(field.field)"
+            >
+                <span
+                    icon="pi pi-exclamation-triangle"
+                    styleClass="error-icon"
+                ></span>
+                <span>{{ field.message }}: {{ field.field }}</span>
+            </li>
+        </ul>
+    </div>
+</p-dialog>
+
+<!--   [disabled]="!registrationForm.valid" -->
+
+<!-- Diálogo para agregar o editar Actividad Económica -->
+<p-dialog
+    header="Actividad Económica"
+    [(visible)]="displayActividadDialog"
+    [modal]="true"
+    [responsive]="true"
+    [style]="{ width: '400px' }"
+    [closable]="false"
+>
+    <div class="p-fluid">
+        <div class="p-field">
+            <label for="nombreActividad">Nombre de la Actividad</label>
+            <input
+                type="text"
+                pInputText
+                [(ngModel)]="actividadActual.nombre"
+                placeholder="Ingrese la actividad económica"
+            />
+        </div>
+    </div>
+    <p-footer>
+        <button
+            pButton
+            label="Guardar"
+            icon="pi pi-check"
+            (click)="saveActividadEconomica()"
+        ></button>
+        <button
+            pButton
+            label="Cancelar"
+            icon="pi pi-times"
+            class="p-button-secondary"
+            (click)="cancelActividadEconomica()"
+        ></button>
+    </p-footer>
+</p-dialog>
+
+<!-- Diálogo para agregar o editar Gastos del Hogar -->
+<p-dialog
+    header="Gastos del Hogar"
+    [(visible)]="displayGastosDialog"
+    [modal]="true"
+    [responsive]="true"
+    [style]="{ width: '400px' }"
+    [closable]="false"
+>
+    <div class="p-fluid">
+        <div class="p-field">
+            <label for="tipoGasto">Tipo de Gasto</label>
+            <!-- Mostrar el dropdown solo si es un nuevo gasto -->
+            <p-dropdown
+                *ngIf="!isEditMode"
+                appendTo="body"
+                [options]="filteredGastosOptions"
+                [(ngModel)]="gastoActual.tipo"
+                placeholder="Seleccione el tipo de gasto"
+                optionLabel="label"
+                [ngModelOptions]="{ standalone: true }"
+            ></p-dropdown>
+            <!-- Mostrar solo el tipo de gasto en texto si es edición -->
+            <span *ngIf="isEditMode">{{ gastoActual.tipo?.label }}</span>
+        </div>
+        <div class="p-field">
+            <label for="porcentajeGasto">Porcentaje (%)</label>
+            <input
+                type="number"
+                pInputText
+                [min]="0"
+                [max]="100"
+                [(ngModel)]="gastoActual.porcentaje"
+                placeholder="Ingrese el porcentaje"
+            />
+        </div>
+    </div>
+    <p-footer>
+        <button
+            pButton
+            label="Guardar"
+            icon="pi pi-check"
+            (click)="saveGastoHogar()"
+            [disabled]="!isFormValid()"
+        ></button>
+        <button
+            pButton
+            label="Cancelar"
+            icon="pi pi-times"
+            class="p-button-secondary"
+            (click)="cancelGastoHogar()"
+        ></button>
+    </p-footer>
+</p-dialog>
+
+<!-- Diálogo para agregar o editar Familiares -->
+<p-dialog
+    header="Composición Familiar"
+    [(visible)]="displayFamiliarDialog"
+    [modal]="true"
+    [responsive]="true"
+    [style]="{ width: '500px', 'border-radius': '8px' }"
+    [closable]="false"
+    class="familiar-dialog"
+>
+    <div>
+        <div
+            class="p-fluid"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiParentesco">Parentesco</label>
+            <input
+                type="text"
+                pInputText
+                [(ngModel)]="familiarActual.familiParentesco"
+                placeholder="Ingrese el parentesco"
+            />
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiaNombre">Nombre</label>
+            <input
+                type="text"
+                pInputText
+                [(ngModel)]="familiarActual.familiaNombre"
+                placeholder="Ingrese el nombre"
+            />
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiaApellido">Apellido</label>
+            <input
+                type="text"
+                pInputText
+                [(ngModel)]="familiarActual.familiaApellido"
+                placeholder="Ingrese el apellido"
+            />
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familigenero">Genero</label>
+            <p-dropdown
+                appendTo="body"
+                [options]="familigeneroOptions"
+                [(ngModel)]="familiarActual.familigenero"
+                placeholder="Seleccione el genero"
+                [ngModelOptions]="{ standalone: true }"
+            ></p-dropdown>
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiEdad">Edad</label>
+            <input
+                type="number"
+                pInputText
+                [(ngModel)]="familiarActual.familiEdad"
+                placeholder="Ingrese la edad"
+                min="0"
+                max="100"
+                step="1"
+                style="width: 100%"
+                class="p-inputtext-sm p-d-block"
+            />
+            <span
+                style="
+                    width: 100%;
+                    display: block;
+                    text-align: center;
+                    font-size: 12px;
+                "
+                >Edad entre 0 y 100</span
+            >
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiEstadoCivil">Estado Civil</label>
+            <p-dropdown
+                appendTo="body"
+                [options]="estadoCivilOptions"
+                [(ngModel)]="familiarActual.familiEstadoCivil"
+                placeholder="Seleccione el estado civil"
+                [ngModelOptions]="{ standalone: true }"
+            ></p-dropdown>
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiEtnia">Etnia</label>
+            <p-dropdown
+                appendTo="body"
+                [options]="etniaOptions"
+                [(ngModel)]="familiarActual.familiEtnia"
+                placeholder="Seleccione la etnia"
+                [ngModelOptions]="{ standalone: true }"
+            ></p-dropdown>
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiNacionalidad">Nacionalidad</label>
+
+            <p-dropdown
+                [filter]="true"
+                appendTo="body"
+                [options]="nacionalidadOptions"
+                [(ngModel)]="familiarActual.familiNacionalidad"
+                optionLabel="label"
+                [showClear]="true"
+                placeholder="Select a un País"
+            >
+                <ng-template pTemplate="selectedItem">
+                    <div
+                        class="flex align-items-center gap-2"
+                        *ngIf="familiarActual.familiNacionalidad"
+                    >
+                        <img
+                            src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
+                            [class]="
+                                'flag flag-' +
+                                familiarActual.familiNacionalidad.code.toLowerCase()
+                            "
+                            style="width: 18px"
+                        />
+                        <div>{{ familiarActual.familiNacionalidad.label }}</div>
+                    </div>
+                </ng-template>
+                <ng-template let-country pTemplate="item">
+                    <div class="flex align-items-center gap-2">
+                        <img
+                            src="https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png"
+                            [class]="'flag flag-' + country.code.toLowerCase()"
+                            style="width: 18px"
+                        />
+                        <div>{{ country.label }}</div>
+                    </div>
+                </ng-template>
+            </p-dropdown>
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiCeduala">Cedula</label>
+            <input
+                type="text"
+                pInputText
+                [(ngModel)]="familiarActual.familiCeduala"
+                placeholder="Ingrese la cedula"
+                maxlength="10"
+                minlength="10"
+            />
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiNivelEducativo">Nivel Educativo</label>
+            <p-dropdown
+                appendTo="body"
+                [options]="nivelEducativoOptions"
+                [(ngModel)]="familiarActual.familiNivelEducativo"
+                placeholder="Seleccione el nivel educativo"
+                [ngModelOptions]="{ standalone: true }"
+            ></p-dropdown>
+            <span
+                style="
+                    width: 100%;
+                    display: block;
+                    text-align: center;
+                    font-size: 12px;
+                "
+                >Selecciona entre los niveles educativos</span
+            >
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiOcupacion">Ocupación</label>
+            <p-dropdown
+                appendTo="body"
+                [options]="ocupacionOptions"
+                [(ngModel)]="familiarActual.familiOcupacion"
+                placeholder="Seleccione la ocupación"
+                [ngModelOptions]="{ standalone: true }"
+            ></p-dropdown>
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiDiscacidad">Discapacidad</label>
+            <p-dropdown
+                appendTo="body"
+                [options]="discapacidadOptions"
+                [(ngModel)]="familiarActual.familiDiscacidad"
+                placeholder="Seleccione la discapacidad"
+                [ngModelOptions]="{ standalone: true }"
+            ></p-dropdown>
+        </div>
+        <div
+            class="p-field"
+            style="
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: space-between;
+                align-items: center;
+                align-content: center;
+            "
+        >
+            <label for="familiEnfermedad">Enfermedad</label>
+            <p-dropdown
+                appendTo="body"
+                [options]="enfermedadOptions"
+                [(ngModel)]="familiarActual.familiEnfermedad"
+                placeholder="Seleccione la enfermedad"
+                [ngModelOptions]="{ standalone: true }"
+            ></p-dropdown>
+            <span
+                style="
+                    width: 100%;
+                    display: block;
+                    text-align: center;
+                    font-size: 12px;
+                "
+                >Enfermedad entre 0 y 10</span
+            >
+        </div>
+    </div>
+    <p-footer>
+        <button
+            pButton
+            label="Guardar"
+            icon="pi pi-check"
+            (click)="saveFamiliar()"
+            [disabled]="!isFormValidFamili()"
+        ></button>
+        <button
+            pButton
+            label="Cancelar"
+            icon="pi pi-times"
+            class="p-button-secondary"
+            (click)="cancelFamiliar()"
+        ></button>
+    </p-footer>
+</p-dialog>
+
+<!-- p-dialog para ingresar la causa personalizada -->
+<p-dialog
+    [header]="'Especificar Otra: ' + key"
+    [(visible)]="displayDialogOtherCause"
+    [modal]="true"
+    [responsive]="true"
+    [style]="{ width: '400px' }"
+    [closable]="false"
+>
+    <div class="p-fluid">
+        <div class="p-field">
+            <label for="customCause">Especifique 'OTRO' o 'OTROS':</label>
+            <input
+                *ngIf="key"
+                id="customOther"
+                type="text"
+                pInputText
+                [(ngModel)]="customOther[key]"
+                placeholder="Especifique la causa"
+            />
+        </div>
+    </div>
+
+    <p-footer>
+        <button
+            pButton
+            label="Guardar"
+            icon="pi pi-check"
+            (click)="closeDialogOtherCause()"
+        ></button>
+        <button
+            pButton
+            label="Cancelar"
+            icon="pi pi-times"
+            class="p-button-secondary"
+            (click)="closeDialogOtherCause()"
+        ></button>
+    </p-footer>
+</p-dialog>
