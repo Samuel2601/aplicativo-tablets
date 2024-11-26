@@ -82,7 +82,7 @@ export class LoginComponent implements OnInit {
 
         if (this.auth.token()) {
             setTimeout(() => {
-                this.router.navigate(['/home']);
+                this.router.navigate(['/']);
             }, 2000);
         } else {
             this.loadUserData();
@@ -304,7 +304,7 @@ export class LoginComponent implements OnInit {
                                 ? localStorage
                                 : sessionStorage;
                             storage.setItem('token', response.token);
-                            this.router.navigate(['/recolectores/map']);
+                            this.router.navigate(['/']);
                         });
                 } else {
                     this.messageService.add({
@@ -513,7 +513,7 @@ export class LoginComponent implements OnInit {
         await this.auth.inicialityPermiss();
 
         setTimeout(() => {
-            this.router.navigate([hasPassword ? '/maps/edit-user' : '/home']);
+            this.router.navigate([hasPassword ? '/' : '/']);
         }, 1000);
     }
 
