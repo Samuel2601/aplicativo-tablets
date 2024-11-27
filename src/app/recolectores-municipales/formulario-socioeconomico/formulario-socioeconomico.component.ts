@@ -123,7 +123,7 @@ export class FormularioSocioeconomicoComponent implements OnInit {
 
         this.username = userDate.last_name + ' ' + userDate.name;
         // Asigna la fecha actual al control 'date' al inicializar el componente
-        const currentDate = new Date().toISOString().split('T')[0]; // Formato 'YYYY-MM-DD' para el input date
+        const currentDate = new Date(); // Formato 'YYYY-MM-DD' para el input date
         this.registrationForm
             .get('informacionRegistro.date')
             ?.setValue(currentDate);
@@ -141,7 +141,7 @@ export class FormularioSocioeconomicoComponent implements OnInit {
 
         this.username = userDate.last_name + ' ' + userDate.name;
         // Asigna la fecha actual al control 'date' al inicializar el componente
-        const currentDate = new Date().toISOString().split('T')[0]; // Formato 'YYYY-MM-DD' para el input date
+        const currentDate = new Date(); // Formato 'YYYY-MM-DD' para el input date
         this.registrationForm
             .get('informacionRegistro.date')
             ?.setValue(currentDate);
@@ -946,30 +946,26 @@ export class FormularioSocioeconomicoComponent implements OnInit {
         }
     }
     updateFamiliar() {
-        this.familiarList.forEach((element) => {
+        console.log('updateFamiliar');
+        this.familiarList = this.familiarList.map((element) => {
             if (
                 element.familiaNombre === this.cloneEditFamiliar.familiaNombre
             ) {
-                element.familiaNombre = this.familiarActual.familiaNombre;
+                // Crea una nueva copia del objeto actualizado
+                return { ...this.familiarActual };
             }
+            return element; // Retorna el elemento original si no coincide
         });
-        this.cloneEditFamiliar = {
-            familiParentesco: '',
-            familiaNombre: '',
-            familiaApellido: '',
-            familigenero: '',
-            familiEdad: '',
-            familiEstadoCivil: '',
-            familiEtnia: '',
-            familiNacionalidad: undefined,
-            familiCeduala: '',
-            familiNivelEducativo: '',
-            familiOcupacion: '',
-            familiDiscacidad: '',
-            familiEnfermedad: '',
-        };
+
+        // Reinicia los objetos usados en el formulario
+        this.cloneEditFamiliar = this.getEmptyFamiliar();
         this.displayFamiliarDialog = false;
-        this.familiarActual = {
+        this.familiarActual = this.getEmptyFamiliar();
+    }
+
+    // Método auxiliar para obtener un objeto vacío para inicializar
+    getEmptyFamiliar() {
+        return {
             familiParentesco: '',
             familiaNombre: '',
             familiaApellido: '',
@@ -995,71 +991,15 @@ export class FormularioSocioeconomicoComponent implements OnInit {
     }
     private agregarNuevaFamiliar() {
         this.familiarList.push(this.familiarActual);
-        this.familiarActual = {
-            familiParentesco: '',
-            familiaNombre: '',
-            familiaApellido: '',
-            familigenero: '',
-            familiEdad: '',
-            familiEstadoCivil: '',
-            familiEtnia: '',
-            familiNacionalidad: undefined,
-            familiCeduala: '',
-            familiNivelEducativo: '',
-            familiOcupacion: '',
-            familiDiscacidad: '',
-            familiEnfermedad: '',
-        };
+        this.familiarActual = this.getEmptyFamiliar();
         this.displayFamiliarDialog = false;
-        this.cloneEditFamiliar = {
-            familiParentesco: '',
-            familiaNombre: '',
-            familiaApellido: '',
-            familigenero: '',
-            familiEdad: '',
-            familiEstadoCivil: '',
-            familiEtnia: '',
-            familiNacionalidad: undefined,
-            familiCeduala: '',
-            familiNivelEducativo: '',
-            familiOcupacion: '',
-            familiDiscacidad: '',
-            familiEnfermedad: '',
-        };
+        this.cloneEditFamiliar = this.getEmptyFamiliar();
         console.log(this.familiarList);
     }
     cancelFamiliar() {
-        this.familiarActual = {
-            familiParentesco: '',
-            familiaNombre: '',
-            familiaApellido: '',
-            familigenero: '',
-            familiEdad: '',
-            familiEstadoCivil: '',
-            familiEtnia: '',
-            familiNacionalidad: undefined,
-            familiCeduala: '',
-            familiNivelEducativo: '',
-            familiOcupacion: '',
-            familiDiscacidad: '',
-            familiEnfermedad: '',
-        };
+        this.familiarActual = this.getEmptyFamiliar();
         this.displayFamiliarDialog = false;
-        this.cloneEditFamiliar = {
-            familiParentesco: '',
-            familiaNombre: '',
-            familiaApellido: '',
-            familigenero: '',
-            familiEdad: '',
-            familiEstadoCivil: '',
-            familiEtnia: '',
-            familiNacionalidad: undefined,
-            familiCeduala: '',
-            familiNivelEducativo: '',
-            familiOcupacion: '',
-            familiDiscacidad: '',
-            familiEnfermedad: '',
-        };
+        this.cloneEditFamiliar = this.getEmptyFamiliar();
         /* cancelar */
     }
     editFamiliar(familiar) {
