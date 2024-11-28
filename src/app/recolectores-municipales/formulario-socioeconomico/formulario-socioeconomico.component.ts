@@ -259,10 +259,10 @@ export class FormularioSocioeconomicoComponent implements OnInit {
     // Opciones para los campos en el grupo "salud"
     estadoSaludOptions: { label: string; value: string }[] = [
         { label: 'Excelente', value: 'EXCELENTE' },
-        { label: 'Malo', value: 'MALO' },
         { label: 'Bueno', value: 'BUENO' },
         { label: 'Regular', value: 'REGULAR' },
         { label: 'Fatal', value: 'FATAL' },
+        { label: 'Malo', value: 'MALO' },
     ];
 
     causasSaludOptions: {
