@@ -532,6 +532,29 @@ export class FormularioSocioeconomicoComponent implements OnInit {
         { label: 'Africana', value: 'AFRICANA' },
         { label: 'No se aplica', value: 'NO SE APLICA' },
     ];
+
+    nivelEducativoOptions = [
+        { label: 'Completo', value: 'COMPLETO' },
+        { label: 'Mediano', value: 'MEDIANO' },
+        { label: 'Bajo', value: 'BAJO' },
+        { label: 'No se aplica', value: 'NO SE APLICA' },
+    ];
+    ocupacionOptions = [
+        { label: 'Trabajador', value: 'TRABAJADOR' },
+        { label: 'Estudiante', value: 'ESTUDIANTE' },
+        { label: 'Estudia y Trabaja', value: 'ESTUDIANTE_TRABAJO' },
+        { label: 'Otro', value: 'OTRO' },
+        { label: 'No se aplica', value: 'NO SE APLICA' },
+    ];
+    discapacidadOptions = [
+        { label: 'Discapacitado', value: 'DISCAPACITADO' },
+        { label: 'No se aplica', value: 'NO SE APLICA' },
+    ];
+    enfermedadOptions = [
+        { label: 'Enferma', value: 'ENFERMA' },
+        { label: 'No se aplica', value: 'NO SE APLICA' },
+    ];
+
     nacionalidadOptions = [
         { label: 'Afganistán', value: 'AFGANA', code: 'AF' },
         { label: 'Alemania', value: 'ALEMANA', code: 'DE' },
@@ -574,28 +597,6 @@ export class FormularioSocioeconomicoComponent implements OnInit {
         { label: 'Uruguay', value: 'URUGUAYA', code: 'UY' },
         { label: 'Venezuela', value: 'VENEZOLANA', code: 'VE' },
         { label: 'No se aplica', value: 'NO SE APLICA', code: 'NA' },
-    ];
-
-    nivelEducativoOptions = [
-        { label: 'Completo', value: 'COMPLETO' },
-        { label: 'Mediano', value: 'MEDIANO' },
-        { label: 'Bajo', value: 'BAJO' },
-        { label: 'No se aplica', value: 'NO SE APLICA' },
-    ];
-    ocupacionOptions = [
-        { label: 'Trabajador', value: 'TRABAJADOR' },
-        { label: 'Estudiante', value: 'ESTUDIANTE' },
-        { label: 'Estudia y Trabaja', value: 'ESTUDIANTE_TRABAJO' },
-        { label: 'Otro', value: 'OTRO' },
-        { label: 'No se aplica', value: 'NO SE APLICA' },
-    ];
-    discapacidadOptions = [
-        { label: 'Discapacitado', value: 'DISCAPACITADO' },
-        { label: 'No se aplica', value: 'NO SE APLICA' },
-    ];
-    enfermedadOptions = [
-        { label: 'Enferma', value: 'ENFERMA' },
-        { label: 'No se aplica', value: 'NO SE APLICA' },
     ];
 
     // Datos para el diálogo de Actividad Económica y Gastos del Hogar
