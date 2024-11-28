@@ -90,23 +90,28 @@
         </p-table>
     </ng-template>
     <ng-template pTemplate="footer">
-        <button
-            pButton
-            label="Calcular Espacio"
-            (click)="calculateStorageUsage()"
-        ></button>
-        <button
-            pButton
-            label="Eliminar Enviados"
-            class="p-button-danger"
-            (click)="deleteSentRecords()"
-        ></button>
-        <button
-            pButton
-            label="Enviar Todos los Pendientes"
-            class="p-button-success"
-            (click)="syncData()"
-        ></button>
+        <div style="display: flex; justify-content: space-between">
+            <button
+                class="m-2"
+                pButton
+                label="Calcular Espacio de Almacenamiento"
+                (click)="calculateStorageUsage()"
+            ></button>
+            <button
+                class="m-2"
+                pButton
+                label="Eliminar Enviados"
+                class="p-button-danger"
+                (click)="deleteSentRecords()"
+            ></button>
+            <button
+                class="m-2"
+                pButton
+                label="Enviar Todos los Pendientes"
+                class="p-button-success"
+                (click)="syncData()"
+            ></button>
+        </div>
     </ng-template>
 </p-dialog>
 
@@ -1911,6 +1916,7 @@
 
     <p-footer>
         <button
+            class="m-2"
             pButton
             label="Guardar"
             icon="pi pi-check"
