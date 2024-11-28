@@ -36,7 +36,7 @@
                         'highlighted-row': currentRecordId === record.id
                     }"
                 >
-                    <td>{{ record.id }}</td>
+                    <td>{{ record.id | date : "dd/MM/yyyy HH:mm" }}</td>
                     <td>
                         <p-badge
                             *ngIf="record.status === 'Enviado'"
@@ -94,7 +94,7 @@
             <button
                 class="m-2"
                 pButton
-                label="Calcular Espacio de Almacenamiento"
+                label="Calcular Espacio Ocupado"
                 (click)="calculateStorageUsage()"
             ></button>
             <button
@@ -129,9 +129,13 @@
                     pInputText
                     formControlName="encuestador"
                 />
-                <label for="encuestador" *ngIf="username">
-                    {{ username }}
-                </label>
+                <input
+                    type="text"
+                    [disabled]="true"
+                    *ngIf="username"
+                    pInputText
+                    [value]="username"
+                />
             </div>
         </div>
         <div class="col-6">
@@ -202,7 +206,7 @@
                     placeholder="Seleccione la nacionalidad"
                     optionLabel="label"
                     [showClear]="true"
-                    placeholder="Select a País"
+                    placeholder="Seleccione la nacionalidad"
                 >
                     <ng-template pTemplate="selectedItem">
                         <div
@@ -266,7 +270,7 @@
         <div class="col-6">
             <div class="p-field">
                 <label for="posesionTime">Tiempo de Posesión</label>
-                <div>
+                <div style="display: flex; justify-content: space-between">
                     <input
                         id="informacionUbicacion.posesionTime"
                         pInputText
@@ -274,7 +278,7 @@
                         type="number"
                         min="0"
                         placeholder="Cantidad"
-                        style="width: auto"
+                        style="width: 130px"
                     />
                     <p-dropdown
                         appendTo="body"
@@ -377,19 +381,29 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="estadoSalud"
                     >¿Cómo usted evalúa su estado de salud?</label
                 >
-                <p-dropdown
-                    id="salud.estadoSalud"
-                    [options]="estadoSaludOptions"
-                    formControlName="estadoSalud"
-                    placeholder="Seleccione el estado"
-                ></p-dropdown>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
+                    <p-dropdown
+                        id="salud.estadoSalud"
+                        [options]="estadoSaludOptions"
+                        formControlName="estadoSalud"
+                        placeholder="Seleccione el estado"
+                    ></p-dropdown>
+                </div>
             </div>
         </div>
         <div class="col-12">
@@ -399,15 +413,23 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="causasSalud"
                     >En su opinión, ¿cuáles son las causas de su problema de
                     salud?
                 </label>
-                <div>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
                     <p-multiSelect
                         id="salud.causasSalud"
                         appendTo="body"
@@ -442,20 +464,30 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="conexionHigienico"
                     >El servicio higiénico que tiene en su vivienda está
                     conectado a:
                 </label>
-                <p-dropdown
-                    id="salud.conexionHigienico"
-                    [options]="conexionHigienicoOptions"
-                    formControlName="conexionHigienico"
-                    placeholder="Seleccione la conexión"
-                ></p-dropdown>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
+                    <p-dropdown
+                        id="salud.conexionHigienico"
+                        [options]="conexionHigienicoOptions"
+                        formControlName="conexionHigienico"
+                        placeholder="Seleccione la conexión"
+                    ></p-dropdown>
+                </div>
             </div>
         </div>
     </p-panel>
@@ -490,14 +522,22 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="serviciosBasicos"
                     >¿Cuáles de los siguientes servicios básicos Ud. Dispone?
                 </label>
-                <div>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
                     <p-multiSelect
                         id="vivienda.serviciosBasicos"
                         appendTo="body"
@@ -557,28 +597,38 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="documentosPropiedad"
                     >Qué documentos relativos a la propiedad usted tiene:
                 </label>
-                <p-multiSelect
-                    id="vivienda.documentosPropiedad"
-                    appendTo="body"
-                    [filter]="false"
-                    selectedItemsLabel="{0} seleccionado"
-                    [maxSelectedLabels]="1"
-                    [options]="documentosPropiedadOptions"
-                    formControlName="documentosPropiedad"
-                    [(ngModel)]="selectedValues.documentosPropiedad"
-                    placeholder="Seleccione los documentos"
-                    optionLabel="label"
-                    (onChange)="
-                        onMultiSelectChange('documentosPropiedad', true)
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
                     "
-                ></p-multiSelect>
+                >
+                    <p-multiSelect
+                        id="vivienda.documentosPropiedad"
+                        appendTo="body"
+                        [filter]="false"
+                        selectedItemsLabel="{0} seleccionado"
+                        [maxSelectedLabels]="1"
+                        [options]="documentosPropiedadOptions"
+                        formControlName="documentosPropiedad"
+                        [(ngModel)]="selectedValues.documentosPropiedad"
+                        placeholder="Seleccione los documentos"
+                        optionLabel="label"
+                        (onChange)="
+                            onMultiSelectChange('documentosPropiedad', true)
+                        "
+                    ></p-multiSelect>
+                </div>
             </div>
         </div>
 
@@ -634,19 +684,29 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="tipoAlumbrado"
                     >Tipo de alumbrado de la Vivienda</label
                 >
-                <p-dropdown
-                    id="vivienda.tipoAlumbrado"
-                    [options]="tipoAlumbradoOptions"
-                    formControlName="tipoAlumbrado"
-                    placeholder="Seleccione el tipo de alumbrado"
-                ></p-dropdown>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
+                    <p-dropdown
+                        id="vivienda.tipoAlumbrado"
+                        [options]="tipoAlumbradoOptions"
+                        formControlName="tipoAlumbrado"
+                        placeholder="Seleccione el tipo de alumbrado"
+                    ></p-dropdown>
+                </div>
             </div>
         </div>
 
@@ -657,14 +717,22 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="abastecimientoAgua"
                     >¿Cómo se abastece con el agua?
                 </label>
-                <div>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
                     <p-multiSelect
                         id="vivienda.abastecimientoAgua"
                         appendTo="body"
@@ -700,8 +768,7 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="bienesServiciosElectrodomesticos"
@@ -709,7 +776,16 @@
                     Dispone?
                 </label>
 
-                <div>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
                     <p-multiSelect
                         id="vivienda.bienesServiciosElectrodomesticos"
                         appendTo="body"
@@ -755,19 +831,29 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="zonaRiesgo"
                     >¿Su vivienda se encuentra en una zona de riesgo?</label
                 >
-                <p-dropdown
-                    id="vivienda.zonaRiesgo"
-                    [options]="zonaRiesgoOptions"
-                    formControlName="zonaRiesgo"
-                    placeholder="Seleccione la zona de riesgo"
-                ></p-dropdown>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
+                    <p-dropdown
+                        id="vivienda.zonaRiesgo"
+                        [options]="zonaRiesgoOptions"
+                        formControlName="zonaRiesgo"
+                        placeholder="Seleccione la zona de riesgo"
+                    ></p-dropdown>
+                </div>
             </div>
         </div>
     </p-panel>
@@ -780,19 +866,29 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="participacionCapacitacion"
                     >Ha participado en algún tipo de capacitación</label
                 >
-                <p-dropdown
-                    id="mediosDeVida.participacionCapacitacion"
-                    [options]="participacionCapacitacionOptions"
-                    formControlName="participacionCapacitacion"
-                    placeholder="Seleccione una opción"
-                ></p-dropdown>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
+                    <p-dropdown
+                        id="mediosDeVida.participacionCapacitacion"
+                        [options]="participacionCapacitacionOptions"
+                        formControlName="participacionCapacitacion"
+                        placeholder="Seleccione una opción"
+                    ></p-dropdown>
+                </div>
             </div>
         </div>
         <div class="col-12">
@@ -825,19 +921,29 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="actividadLaboral"
                     >En los últimos 12 meses, ha tenido una actividad laboral:
                 </label>
-                <p-dropdown
-                    id="mediosDeVida.actividadLaboral"
-                    [options]="actividadLaboralOptions"
-                    formControlName="actividadLaboral"
-                    placeholder="Seleccione una opción"
-                ></p-dropdown>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
+                    <p-dropdown
+                        id="mediosDeVida.actividadLaboral"
+                        [options]="actividadLaboralOptions"
+                        formControlName="actividadLaboral"
+                        placeholder="Seleccione una opción"
+                    ></p-dropdown>
+                </div>
             </div>
         </div>
 
@@ -952,20 +1058,30 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="ingresosMensuales"
                     >Ingresos mensuales promedios del hogar (sumando los
                     ingresos de todos los individuos activos)</label
                 >
-                <p-dropdown
-                    id="mediosDeVida.ingresosMensuales"
-                    [options]="ingresosMensualesOptions"
-                    formControlName="ingresosMensuales"
-                    placeholder="Seleccione una opción"
-                ></p-dropdown>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
+                    <p-dropdown
+                        id="mediosDeVida.ingresosMensuales"
+                        [options]="ingresosMensualesOptions"
+                        formControlName="ingresosMensuales"
+                        placeholder="Seleccione una opción"
+                    ></p-dropdown>
+                </div>
             </div>
         </div>
 
@@ -1037,14 +1153,22 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="fuentesIngresos"
                     >Los ingresos mensuales provienen de:
                 </label>
-                <div>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
                     <p-multiSelect
                         id="mediosDeVida.fuentesIngresos"
                         appendTo="body"
@@ -1176,15 +1300,23 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="actividadCantonDentro"
                     >En su tiempo libre, que actividades realizan (dentro del
                     cantón)</label
                 >
-                <div>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
                     <p-multiSelect
                         id="redesDeApoyo.actividadCantonDentro"
                         appendTo="body"
@@ -1221,8 +1353,7 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="actividadCantonFuera"
@@ -1230,7 +1361,16 @@
                     cantón)</label
                 >
 
-                <div>
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
+                >
                     <p-multiSelect
                         id="redesDeApoyo.actividadCantonFuera"
                         appendTo="body"
@@ -1267,25 +1407,35 @@
                     display: flex;
                     flex-wrap: wrap;
                     justify-content: space-between;
-                    align-items: center;
-                    align-content: center;
+                    flex-direction: column;
                 "
             >
                 <label for="mejorasBarrio"
                     >¿Qué sugiere usted para mejorar su barrio? (Seleccionar 3)
                 </label>
-                <p-multiSelect
-                    id="redesDeApoyo.mejorasBarrio"
-                    appendTo="body"
-                    [filter]="false"
-                    selectedItemsLabel="{0} seleccionado"
-                    [maxSelectedLabels]="1"
-                    selectionLimit="3"
-                    [options]="mejorasBarrioOptions"
-                    formControlName="mejorasBarrio"
-                    defaultLabel="Seleccione..."
+                <div
+                    style="
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: center;
+                        align-content: center;
+                        flex-direction: column;
+                    "
                 >
-                </p-multiSelect>
+                    <p-multiSelect
+                        id="redesDeApoyo.mejorasBarrio"
+                        appendTo="body"
+                        [filter]="false"
+                        selectedItemsLabel="{0} seleccionado"
+                        [maxSelectedLabels]="1"
+                        selectionLimit="3"
+                        [options]="mejorasBarrioOptions"
+                        formControlName="mejorasBarrio"
+                        defaultLabel="Seleccione..."
+                    >
+                    </p-multiSelect>
+                </div>
             </div>
         </div>
 
@@ -1313,13 +1463,15 @@
         </div>
     </p-panel>
     <p-panel header="Familiares" styleClass="mb-3" formGroupName="familiaList">
-        <button
-            pButton
-            type="button"
-            icon="pi pi-plus"
-            label="Agregar Familiar"
-            (click)="showDialogFamiliar()"
-        ></button>
+        <div style="display: flex; justify-content: space-between">
+            <button
+                pButton
+                type="button"
+                icon="pi pi-plus"
+                label="Agregar Familiar"
+                (click)="showDialogFamiliar()"
+            ></button>
+        </div>
 
         <p-table
             [style.width]="'100%'"
@@ -1428,7 +1580,8 @@
 <button
     *ngIf="getInvalidFieldsWithMessages().length > 0"
     pButton
-    icon="pi pi-exclamation-circle"
+    style="border: 1px solid #d40000; width: 50px; height: 50px"
+    icon="pi pi-question"
     styleClass="warning-button"
     (click)="showInvalidFieldsDialog()"
     class="warning-button"
@@ -1567,7 +1720,7 @@
 >
     <div>
         <div
-            class="p-fluid"
+            class="p-field"
             style="
                 display: flex;
                 flex-wrap: wrap;
@@ -1728,7 +1881,7 @@
                 [(ngModel)]="familiarActual.familiNacionalidad"
                 optionLabel="label"
                 [showClear]="true"
-                placeholder="Select a un País"
+                placeholder="Seleccione la nacionalidad"
             >
                 <ng-template pTemplate="selectedItem">
                     <div
@@ -1862,15 +2015,6 @@
                 placeholder="Seleccione la enfermedad"
                 [ngModelOptions]="{ standalone: true }"
             ></p-dropdown>
-            <span
-                style="
-                    width: 100%;
-                    display: block;
-                    text-align: center;
-                    font-size: 12px;
-                "
-                >Enfermedad entre 0 y 10</span
-            >
         </div>
     </div>
     <p-footer>
