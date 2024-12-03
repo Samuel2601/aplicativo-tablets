@@ -19,7 +19,7 @@ export class HelperService {
     constructor(private dialogService: DialogService, private router: Router) {}
 
     isMobil(): boolean {
-        return window.innerWidth <= 575; // Capacitor.isNativePlatform(); //
+        return Capacitor.isNativePlatform(); //window.innerWidth <= 575; //
     }
 
     async isAndroid(): Promise<boolean> {
@@ -68,7 +68,7 @@ export class HelperService {
             // Verifica si el spinner no está ya abierto
             this.spiner = this.dialogService.open(SpinnerComponent, {
                 header: 'Cargando',
-                dismissableMask: false,
+                dismissableMask: true,
                 width: 'auto',
                 closable: false,
             });

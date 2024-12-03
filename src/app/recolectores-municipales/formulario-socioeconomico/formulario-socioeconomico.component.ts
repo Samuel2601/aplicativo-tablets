@@ -148,6 +148,9 @@ export class FormularioSocioeconomicoComponent implements OnInit {
         this.registrationForm
             .get('informacionRegistro.encuestador')
             ?.setValue(this.authService.idUserToken());
+        this.registrationForm
+            .get('informacionUbicacion.posesionTimeUnit')
+            ?.setValue('years');
         this.currentRecordId = null;
         this.isEditMode = false;
         this.isSent = false;
@@ -1070,6 +1073,19 @@ export class FormularioSocioeconomicoComponent implements OnInit {
             if (this.lastStatus) {
                 this.syncData();
             }
+            const ubiinfo = this.registrationForm.value.informacionUbicacion;
+            this.cleanformData();
+            setTimeout(() => {
+                this.registrationForm
+                    .get('informacionUbicacion.sector')
+                    ?.setValue(ubiinfo.sector);
+                this.registrationForm
+                    .get('informacionUbicacion.barrio')
+                    ?.setValue(ubiinfo.barrio);
+                this.registrationForm
+                    .get('informacionUbicacion.manzana')
+                    ?.setValue(ubiinfo.manzana);
+            }, 1000);
         } else {
             this.highlightInvalidFields();
         }
