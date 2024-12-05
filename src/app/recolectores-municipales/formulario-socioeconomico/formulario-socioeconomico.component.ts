@@ -528,20 +528,30 @@ export class FormularioSocioeconomicoComponent implements OnInit {
         { label: 'Separado', value: 'SEPARADO' },
         { label: 'No se aplica', value: 'NO SE APLICA' },
     ];
+
     etniaOptions = [
         { label: 'Hispana', value: 'HISPANA' },
         { label: 'Latina', value: 'LATINA' },
-        { label: 'Asia', value: 'ASIA' },
+        { label: 'Indígena', value: 'INDIGENA' },
+        { label: 'Asiática', value: 'ASIA' },
         { label: 'Africana', value: 'AFRICANA' },
-        { label: 'No se aplica', value: 'NO SE APLICA' },
+        { label: 'Caucásica', value: 'CAUCASICA' },
+        { label: 'Prefiero no decirlo', value: 'NO_DICE' },
+        { label: 'No especificado', value: 'NO_ESPECIFICADO' },
     ];
 
     nivelEducativoOptions = [
-        { label: 'Completo', value: 'COMPLETO' },
-        { label: 'Mediano', value: 'MEDIANO' },
-        { label: 'Bajo', value: 'BAJO' },
+        { label: 'Primaria', value: 'PRIMARIA' },
+        { label: 'Secundaria', value: 'SECUNDARIA' },
+        { label: 'Técnico', value: 'TECNICO' },
+        { label: 'Bachillerato', value: 'BACHILLERATO' },
+        { label: 'Licenciatura', value: 'LICENCIATURA' },
+        { label: 'Maestría', value: 'MAESTRIA' },
+        { label: 'Doctorado', value: 'DOCTORADO' },
+        { label: 'No especificado', value: 'NO ESPECIFICADO' },
         { label: 'No se aplica', value: 'NO SE APLICA' },
     ];
+
     ocupacionOptions = [
         { label: 'Trabajador', value: 'TRABAJADOR' },
         { label: 'Estudiante', value: 'ESTUDIANTE' },
@@ -550,15 +560,31 @@ export class FormularioSocioeconomicoComponent implements OnInit {
         { label: 'No se aplica', value: 'NO SE APLICA' },
     ];
     discapacidadOptions = [
-        { label: 'Discapacitado', value: 'DISCAPACITADO' },
-        { label: 'No se aplica', value: 'NO SE APLICA' },
+        { label: 'Discapacidad auditiva', value: 'AUDITIVA' },
+        { label: 'Discapacidad visual', value: 'VISUAL' },
+        { label: 'Discapacidad motriz', value: 'MOTRIZ' },
+        { label: 'Discapacidad cognitiva', value: 'COGNITIVA' },
+        { label: 'Discapacidad psíquica', value: 'PSIQUICA' },
+        { label: 'Discapacidad múltiple', value: 'MULTIPLE' },
+        { label: 'No tengo discapacidad', value: 'NO_TENGO' },
     ];
     enfermedadOptions = [
-        { label: 'Enferma', value: 'ENFERMA' },
-        { label: 'No se aplica', value: 'NO SE APLICA' },
+        { label: 'Enfermedad crónica', value: 'CRONICA' },
+        { label: 'Enfermedad mental', value: 'MENTAL' },
+        { label: 'Enfermedad respiratoria', value: 'RESPIRATORIA' },
+        { label: 'Enfermedad cardiovascular', value: 'CARDIOVASCULAR' },
+        { label: 'Cáncer', value: 'CANCER' },
+        { label: 'Diabetes', value: 'DIABETES' },
+        {
+            label: 'No padezco ninguna enfermedad relevante',
+            value: 'NO_PADEZCO',
+        },
     ];
 
     nacionalidadOptions = [
+        { label: 'Ecuador', value: 'ECUATORIANA', code: 'EC' },
+        { label: 'Colombia', value: 'COLOMBIANA', code: 'CO' },
+        { label: 'Perú', value: 'PERUANA', code: 'PE' },
         { label: 'Afganistán', value: 'AFGANA', code: 'AF' },
         { label: 'Alemania', value: 'ALEMANA', code: 'DE' },
         { label: 'Argentina', value: 'ARGENTINA', code: 'AR' },
@@ -567,10 +593,10 @@ export class FormularioSocioeconomicoComponent implements OnInit {
         { label: 'Canadá', value: 'CANADIENSE', code: 'CA' },
         { label: 'Chile', value: 'CHILENA', code: 'CL' },
         { label: 'China', value: 'CHINA', code: 'CN' },
-        { label: 'Colombia', value: 'COLOMBIANA', code: 'CO' },
+
         { label: 'Cuba', value: 'CUBANA', code: 'CU' },
         { label: 'Dinamarca', value: 'DANESA', code: 'DK' },
-        { label: 'Ecuador', value: 'ECUATORIANA', code: 'EC' },
+
         { label: 'Egipto', value: 'EGIPCIA', code: 'EG' },
         { label: 'España', value: 'ESPAÑOLA', code: 'ES' },
         { label: 'Estados Unidos', value: 'ESTADOUNIDENSE', code: 'US' },
@@ -589,7 +615,7 @@ export class FormularioSocioeconomicoComponent implements OnInit {
         { label: 'Noruega', value: 'NORUEGA', code: 'NO' },
         { label: 'Panamá', value: 'PANAMEÑA', code: 'PA' },
         { label: 'Paraguay', value: 'PARAGUAYA', code: 'PY' },
-        { label: 'Perú', value: 'PERUANA', code: 'PE' },
+
         { label: 'Portugal', value: 'PORTUGUESA', code: 'PT' },
         { label: 'Reino Unido', value: 'BRITÁNICA', code: 'GB' },
         { label: 'República Dominicana', value: 'DOMINICANA', code: 'DO' },
